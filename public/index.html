@@ -8,11 +8,15 @@
 </head>
 <body>
   <h1>BiAI PWA</h1>
-  <p>If you see this page, the PWA is working.</p>
+  <p id="msg">Loading message...</p>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
+    fetch('/')
+      .then(r => r.text())
+      .then(t => document.getElementById('msg').textContent = t)
+      .catch(() => document.getElementById('msg').textContent = 'Failed to load message');
   </script>
 </body>
 </html>

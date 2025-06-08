@@ -25,16 +25,16 @@ This repository contains a minimal setup for a language learning Progressive Web
    ```bash
    npm start
    ```
-
-   The server listens on port `3000` by default and serves a `Hello World` message at `/`. Static PWA files are available under `/public/`.
+   The server listens on port `3000` by default and calls the OpenAI API when `/` is requested. The example PWA (`public/index.html`) fetches this endpoint to display the message from ChatGPT. Static files are available under `/public/`.
 
 4. **Run tests**
 
    ```bash
    npm test
    ```
+   
+   The tests start the server, request the `/` route and verify that a response from the OpenAI API (or fallback message) is returned.
 
-   The tests start the server, request the `/` route and check that the response is `Hello World`.
 
 ## Additional Services
 
@@ -60,7 +60,7 @@ n8n can interact with this project over HTTP APIs. Add your n8n credentials or A
 
 ## credentials file
 
-Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. Read these variables in your code via `process.env`. This file is listed in `.gitignore` so it will not be committed to the repository.
+Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenAI integration, set `OPENAI_API_KEY=<your key>` in this file and load it with a tool like `dotenv` or by exporting it before starting the server. This file is listed in `.gitignore` so it will not be committed to the repository.
 
 ## Next steps
 
