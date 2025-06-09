@@ -47,7 +47,7 @@ The example project does not require a database yet, but the following commands 
 docker run --name biaipg -p 5432:5432 -e POSTGRES_PASSWORD=example -d postgres
 ```
 
-Store your actual credentials in the `credentials` file and reference them from environment variables when you expand the application.
+Store your actual credentials in the `credentials` file. The server automatically loads this file at startup so any `KEY=value` pairs become environment variables.
 When the server starts it attempts to connect to the database using `DB_HOST` and `DB_PORT` from the environment. The console will indicate whether the connection succeeded or failed.
 ### n8n Automation
 
@@ -61,7 +61,7 @@ n8n can interact with this project over HTTP APIs. Add your n8n credentials or A
 
 ## credentials file
 
-Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenRouter integration, set `OPEN_ROUTER_KEY=<your key>` in this file and load it with a tool like `dotenv` or by exporting it before starting the server. This file is listed in `.gitignore` so it will not be committed to the repository.
+Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenRouter integration, set `OPEN_ROUTER_KEY=<your key>` in this file. The server reads the file automatically, so you don't need to load it manually. This file is listed in `.gitignore` so it will not be committed to the repository.
 
 ## Next steps
 
