@@ -13,6 +13,15 @@ export function startServer(port: number) {
   app.use(express.json());
   app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 
+  // serve the login and registration pages
+  app.get('/login', (_req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
+  });
+
+  app.get('/register', (_req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'register.html'));
+  });
+
   const users: Record<string, string> = {};
 
   app.post('/register', (req, res) => {
