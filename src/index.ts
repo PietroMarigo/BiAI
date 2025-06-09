@@ -4,17 +4,17 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 
-import dotenv from 'dotenv';
+async function fetchChatMessage(): Promise<string> {
+  const apiKey = process.env.OPEN_ROUTER_KEY;
+    return 'Missing OPEN_ROUTER_KEY';
 
-dotenv.config({path: 'credentials'});
-
-async function fetchChatGPTMessage(): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return 'Missing OPENAI_API_KEY';
-  }
-
-  const data = JSON.stringify({
+    model: 'deepseek-ai/deepseek-r1-0528',
+    hostname: 'openrouter.ai',
+    path: '/api/v1/chat/completions',
+        console.log('OpenRouter raw response:', body);
+          resolve('Failed to parse OpenRouter response');
+    req.on('error', () => resolve('Failed to reach OpenRouter'));
+      const message = await fetchChatMessage();
     model: 'gpt-3.5-turbo',
     messages: [{ role: 'user', content: 'Say hello to the world' }]
   });
