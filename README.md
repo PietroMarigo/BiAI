@@ -11,7 +11,6 @@ This repository contains a minimal setup for a language learning Progressive Web
 ## Setup
 
 1. **Install dependencies**
-
     ```bash
     npm install
     ```
@@ -67,7 +66,6 @@ docker run -it --name biai-n8n -p 5678:5678 n8nio/n8n
 n8n can interact with this project over HTTP APIs. Add your n8n credentials or API keys to the `credentials` file and load them at runtime.
 
 ## credentials file
-
 Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenRouter integration, set `OPEN_ROUTER_KEY=<your key>` in this file. The server reads the file automatically, so you don't need to load it manually. This file is listed in `.gitignore` so it will not be committed to the repository.
 
 ## Next steps
