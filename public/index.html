@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BiAI Language Learning</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>BiAI PWA</h1>
+
+  <div id="messageContainer">
+    <p id="msg">Loading message...</p>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+
+    fetch('/')
+      .then(r => r.text())
+      .then(t => {
+        document.getElementById('msg').textContent = t;
+      })
+      .catch(() => {
+        document.getElementById('msg').textContent = 'Failed to load message';
+      });
+  </script>
+</body>
+</html>
