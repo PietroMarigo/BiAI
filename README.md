@@ -29,7 +29,6 @@ This repository contains a minimal setup for a language learning Progressive Web
    The server listens on port `3000` by default and calls the OpenRouter API when `/` is requested using the `deepseek/deepseek-r1-0528:free` model. The example PWA (`public/index.html`) fetches this endpoint to display the message from the selected model. Static files are available under `/public/`.
 
 When the server starts it attempts to connect to the database using `DB_HOST` and `DB_PORT` from the environment. The console will indicate whether the connection succeeded or failed.
-
    The raw response from OpenRouter is printed to the console for debugging.
 
 4. **Run tests**
@@ -51,7 +50,7 @@ docker run --name biaipg -p 5432:5432 -e POSTGRES_PASSWORD=example -d postgres
 ```
 
 Store your actual credentials in the `credentials` file and reference them from environment variables when you expand the application.
-
+When the server starts it attempts to connect to the database using `DB_HOST` and `DB_PORT` from the environment. The console will indicate whether the connection succeeded or failed.
 ### n8n Automation
 
 To experiment with n8n locally you can also use Docker:
