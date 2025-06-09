@@ -11,7 +11,7 @@ async function fetchChatMessage(): Promise<string> {
   }
 
   const data = JSON.stringify({
-    model: 'deepseek-ai/deepseek-r1-0528',
+    model: 'deepseek/deepseek-r1-0528:free',
     messages: [{ role: 'user', content: 'Say hello to the world' }]
   });
 
