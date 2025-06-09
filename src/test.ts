@@ -48,34 +48,51 @@ dbServer.listen(DB_PORT, 'localhost', () => {
     };
 
     const loginReq = http.request(loginOptions, loginRes => {
+      let cookie = '';
+      if (loginRes.headers['set-cookie']) {
+        cookie = (loginRes.headers['set-cookie'] as string[])[0];
+      }
       loginRes.resume();
       assert.strictEqual(loginRes.statusCode, 200);
 
-      const getOptions = {
+      const rootOptions = {
         hostname: 'localhost',
         port: PORT,
         path: '/',
-        method: 'GET'
+        method: 'GET',
+        headers: { cookie }
       };
 
-      const getReq = http.request(getOptions, getRes => {
-        let body = '';
-        getRes.on('data', chunk => { body += chunk; });
-        getRes.on('end', () => {
-          server.close();
-          dbServer.close();
-          try {
-            assert.ok(body.length > 0);
-            assert.ok(dbConnected);
-            console.log('Test passed');
-            process.exit(0);
-          } catch (err) {
-            console.error('Test failed');
-            process.exit(1);
-          }
+      const rootReq = http.request(rootOptions, rootRes => {
+        assert.strictEqual(rootRes.statusCode, 302);
+        assert.strictEqual(rootRes.headers.location, '/homepage');
+        const homeOptions = {
+          hostname: 'localhost',
+          port: PORT,
+          path: '/homepage',
+          method: 'GET',
+          headers: { cookie }
+        };
+        const homeReq = http.request(homeOptions, homeRes => {
+          let body = '';
+          homeRes.on('data', chunk => { body += chunk; });
+          homeRes.on('end', () => {
+            server.close();
+            dbServer.close();
+            try {
+              assert.ok(body.includes('Hello user'));
+              assert.ok(dbConnected);
+              console.log('Test passed');
+              process.exit(0);
+            } catch (err) {
+              console.error('Test failed');
+              process.exit(1);
+            }
+          });
         });
+        homeReq.end();
       });
-      getReq.end();
+      rootReq.end();
     });
     loginReq.write(loginData);
     loginReq.end();
