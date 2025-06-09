@@ -4,7 +4,7 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 import net from 'net';
-import dotenv form 'dotenv';
+import dotenv from 'dotenv';
 
 dotenv.config({path: 'credentials'});
 
