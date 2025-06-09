@@ -9,16 +9,13 @@
 </head>
 <body>
   <h1>BiAI PWA</h1>
-
   <div id="messageContainer">
     <p id="msg">Loading message...</p>
   </div>
-
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
-
     fetch('/')
       .then(r => r.text())
       .then(t => {
