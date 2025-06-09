@@ -18,6 +18,7 @@ dbServer.listen(DB_PORT, 'localhost', () => {
   process.env.DB_PORT = String(DB_PORT);
 
   const server = startServer(PORT);
+
   const registerData = JSON.stringify({ username: 'user', password: 'pass' });
   const regOptions = {
     hostname: 'localhost',
