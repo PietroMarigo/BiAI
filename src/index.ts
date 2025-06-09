@@ -4,24 +4,20 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 
-import dotenv from 'dotenv';
-
-dotenv.config({path: 'credentials'});
-
-async function fetchChatGPTMessage(): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY;
+async function fetchChatMessage(): Promise<string> {
+  const apiKey = process.env.OPEN_ROUTER_KEY;
   if (!apiKey) {
-    return 'Missing OPENAI_API_KEY';
+    return 'Missing OPEN_ROUTER_KEY';
   }
 
   const data = JSON.stringify({
-    model: 'gpt-3.5-turbo',
+    model: 'deepseek-ai/deepseek-r1-0528',
     messages: [{ role: 'user', content: 'Say hello to the world' }]
   });
 
   const options = {
-    hostname: 'api.openai.com',
-    path: '/v1/chat/completions',
+    hostname: 'openrouter.ai',
+    path: '/api/v1/chat/completions',
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -35,17 +31,17 @@ async function fetchChatGPTMessage(): Promise<string> {
       let body = '';
       res.on('data', chunk => { body += chunk; });
       res.on('end', () => {
-        console.log('OpenAI raw response:', body);
+        console.log('OpenRouter raw response:', body);
         try {
           const json = JSON.parse(body);
           const msg = json.choices?.[0]?.message?.content ?? 'No message';
           resolve(msg.trim());
         } catch (err) {
-          resolve('Failed to parse OpenAI response');
+          resolve('Failed to parse OpenRouter response');
         }
       });
     });
-    req.on('error', () => resolve('Failed to reach OpenAI'));
+    req.on('error', () => resolve('Failed to reach OpenRouter'));
     req.write(data);
     req.end();
   });
@@ -54,7 +50,7 @@ async function fetchChatGPTMessage(): Promise<string> {
 export function startServer(port: number) {
   const server = http.createServer(async (req, res) => {
     if (req.url === '/') {
-      const message = await fetchChatGPTMessage();
+      const message = await fetchChatMessage();
       res.writeHead(200, { 'Content-Type': 'text/plain' });
       res.end(message);
     } else if (req.url && req.url.startsWith('/public/')) {
