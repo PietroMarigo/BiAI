@@ -8,14 +8,11 @@
     "start": "node dist/index.js",
     "test": "npm run build && node dist/test.js"
   },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "@types/node": "^22.15.30",
-    "dotenv": "^16.5.0",
-    "tsc": "^2.0.4",
-    "typescript": "^5.8.3"
-  }
+  "type": "commonjs"
 }

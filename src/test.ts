@@ -2,7 +2,7 @@
 import http from 'http';
 import assert from 'assert';
 import net from 'net';
-import { startServer } from './index';
+import { startServer } from './server';
 
 const PORT = 4000;
 const DB_PORT = 15432;
@@ -18,38 +18,67 @@ dbServer.listen(DB_PORT, 'localhost', () => {
   process.env.DB_PORT = String(DB_PORT);
 
   const server = startServer(PORT);
-
-  const options = {
+  const registerData = JSON.stringify({ username: 'user', password: 'pass' });
+  const regOptions = {
     hostname: 'localhost',
     port: PORT,
-    path: '/',
-    method: 'GET'
+    path: '/register',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(registerData)
+    }
   };
 
-  const req = http.request(options, res => {
-    let data = '';
-    res.on('data', chunk => { data += chunk; });
-    res.on('end', () => {
-      server.close();
-      dbServer.close();
-      try {
-        assert.ok(data.length > 0);
-        assert.ok(dbConnected);
-        console.log('Test passed');
-        process.exit(0);
-      } catch (err) {
-        console.error('Test failed');
-        process.exit(1);
+  const regReq = http.request(regOptions, regRes => {
+    regRes.resume();
+    assert.strictEqual(regRes.statusCode, 201);
+
+    const loginData = JSON.stringify({ username: 'user', password: 'pass' });
+    const loginOptions = {
+      hostname: 'localhost',
+      port: PORT,
+      path: '/login',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(loginData)
       }
+    };
+
+    const loginReq = http.request(loginOptions, loginRes => {
+      loginRes.resume();
+      assert.strictEqual(loginRes.statusCode, 200);
+
+      const getOptions = {
+        hostname: 'localhost',
+        port: PORT,
+        path: '/',
+        method: 'GET'
+      };
+
+      const getReq = http.request(getOptions, getRes => {
+        let body = '';
+        getRes.on('data', chunk => { body += chunk; });
+        getRes.on('end', () => {
+          server.close();
+          dbServer.close();
+          try {
+            assert.ok(body.length > 0);
+            assert.ok(dbConnected);
+            console.log('Test passed');
+            process.exit(0);
+          } catch (err) {
+            console.error('Test failed');
+            process.exit(1);
+          }
+        });
+      });
+      getReq.end();
     });
+    loginReq.write(loginData);
+    loginReq.end();
   });
-
-  req.on('error', err => {
-    server.close();
-    dbServer.close();
-    console.error('Test error', err);
-    process.exit(1);
-  });
-
-  req.end();
+  regReq.write(registerData);
+  regReq.end();
 });
