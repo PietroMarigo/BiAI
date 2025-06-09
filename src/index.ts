@@ -4,6 +4,10 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 
+import dotenv from 'dotenv';
+
+dotenv.config({path: 'credentials'});
+
 async function fetchChatGPTMessage(): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
