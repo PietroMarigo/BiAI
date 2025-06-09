@@ -30,7 +30,7 @@ This repository contains a minimal setup for a language learning Progressive Web
    ```
 
    The server listens on port `3000` by default and calls the OpenRouter API when `/` is requested using the `deepseek/deepseek-r1-0528:free` model. The example PWA (`public/index.html`) fetches this endpoint to display the message from the selected model. Static files are available under `/public/`.
-   The page now includes **Sign Up** and **Login** forms styled with `public/styles.css` so you can register a user and log in before fetching the message from the server.
+Login and registration pages are provided in `public/login.html` and `public/register.html`. Each page uses `public/styles.css` and communicates with the Express backend via `/login` and `/register` before the main app in `index.html` fetches the message from the server.
    The raw response from OpenRouter is printed to the console for debugging. The Express backend also exposes `/register` and `/login` endpoints that accept JSON bodies.
 
 4. **Run tests**
