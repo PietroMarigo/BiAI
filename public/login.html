@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - BiAI</title>
+  <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <input id="loginUser" type="text" placeholder="Username" required>
+    <input id="loginPass" type="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+  <button id="goRegister">Go to Register</button>
+  <p id="status"></p>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const statusEl = document.getElementById('status');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('loginUser').value;
+      const password = document.getElementById('loginPass').value;
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        window.location.href = '/homepage';
+      } else {
+        const text = await res.text();
+        statusEl.textContent = 'Login failed: ' + text;
+      }
+    });
+
+    document.getElementById('goRegister').addEventListener('click', () => {
+      window.location.href = '/register';
+    });
+  </script>
+</body>
+</html>

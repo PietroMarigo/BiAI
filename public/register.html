@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - BiAI</title>
+  <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body>
+  <h1>Register</h1>
+  <form id="signupForm">
+    <input id="signupUser" type="text" placeholder="Username" required>
+    <input id="signupPass" type="password" placeholder="Password" required>
+    <button type="submit">Register</button>
+  </form>
+  <button id="goLogin">Go to Login</button>
+  <p id="status"></p>
+
+  <script>
+    const signupForm = document.getElementById('signupForm');
+    const statusEl = document.getElementById('status');
+
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('signupUser').value;
+      const password = document.getElementById('signupPass').value;
+      const res = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        statusEl.textContent = 'Registered! You can now log in.';
+        signupForm.reset();
+      } else {
+        const text = await res.text();
+        statusEl.textContent = 'Error: ' + text;
+      }
+    });
+
+    document.getElementById('goLogin').addEventListener('click', () => {
+      window.location.href = '/login';
+    });
+  </script>
+</body>
+</html>
