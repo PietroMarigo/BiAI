@@ -3,6 +3,7 @@ import http from 'http';
 import https from 'https';
 import fs from 'fs';
 import path from 'path';
+
 import dotenv from 'dotenv';
 
 dotenv.config({path: 'credentials'});
@@ -34,6 +35,7 @@ async function fetchChatGPTMessage(): Promise<string> {
       let body = '';
       res.on('data', chunk => { body += chunk; });
       res.on('end', () => {
+        console.log('OpenAI raw response:', body);
         try {
           const json = JSON.parse(body);
           const msg = json.choices?.[0]?.message?.content ?? 'No message';

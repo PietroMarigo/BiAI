@@ -25,16 +25,17 @@ This repository contains a minimal setup for a language learning Progressive Web
    ```bash
    npm start
    ```
+
    The server listens on port `3000` by default and calls the OpenAI API when `/` is requested. The example PWA (`public/index.html`) fetches this endpoint to display the message from ChatGPT. Static files are available under `/public/`.
+   The raw response from OpenAI is printed to the console for debugging.
 
 4. **Run tests**
 
    ```bash
    npm test
    ```
-   
-   The tests start the server, request the `/` route and verify that a response from the OpenAI API (or fallback message) is returned.
 
+   The tests start the server, request the `/` route and verify that a response from the OpenAI API (or fallback message) is returned.
 
 ## Additional Services
 
