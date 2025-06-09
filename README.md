@@ -48,9 +48,7 @@ docker run --name biaipg -p 5432:5432 -e POSTGRES_PASSWORD=example -d postgres
 ```
 
 Store your actual credentials in the `credentials` file and reference them from environment variables when you expand the application.
-
 When the server starts it attempts to connect to the database using `DB_HOST` and `DB_PORT` from the environment. The console will indicate whether the connection succeeded or failed.
-
 ### n8n Automation
 
 To experiment with n8n locally you can also use Docker:

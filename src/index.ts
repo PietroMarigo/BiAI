@@ -4,6 +4,9 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 import net from 'net';
+import dotenv form 'dotenv';
+
+dotenv.config({path: 'credentials'});
 
 async function fetchChatMessage(): Promise<string> {
   const apiKey = process.env.OPEN_ROUTER_KEY;
