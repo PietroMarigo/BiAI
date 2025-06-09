@@ -26,7 +26,8 @@ This repository contains a minimal setup for a language learning Progressive Web
    npm start
    ```
 
-   The server listens on port `3000` by default and calls the OpenRouter API when `/` is requested. The example PWA (`public/index.html`) fetches this endpoint to display the message from the selected model. Static files are available under `/public/`.
+   The server listens on port `3000` by default and calls the OpenRouter API when `/` is requested using the `deepseek/deepseek-r1-0528:free` model. The example PWA (`public/index.html`) fetches this endpoint to display the message from the selected model. Static files are available under `/public/`.
+
    The raw response from OpenRouter is printed to the console for debugging.
 
 4. **Run tests**

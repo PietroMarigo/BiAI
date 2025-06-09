@@ -3,6 +3,9 @@ import http from 'http';
 import https from 'https';
 import fs from 'fs';
 import path from 'path';
+import dotenv form 'dotenv';
+
+dotenv.config({path: 'credentials'});
 
 async function fetchChatMessage(): Promise<string> {
   const apiKey = process.env.OPEN_ROUTER_KEY;
@@ -11,7 +14,7 @@ async function fetchChatMessage(): Promise<string> {
   }
 
   const data = JSON.stringify({
-    model: 'deepseek-ai/deepseek-r1-0528',
+    model: 'deepseek/deepseek-r1-0528:free',
     messages: [{ role: 'user', content: 'Say hello to the world' }]
   });
 
