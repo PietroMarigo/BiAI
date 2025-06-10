@@ -1,5 +1,21 @@
 // @ts-nocheck
 import net from 'net';
+import { Pool } from 'pg';
+
+let pool: Pool | null = null;
+
+export function getPool(): Pool | null {
+  if (!pool && process.env.DB_USER && process.env.DB_PASS && process.env.DB_NAME) {
+    pool = new Pool({
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT) || 5432,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: process.env.DB_NAME || 'users'
+    });
+  }
+  return pool;
+}
 
 export function checkDbConnection(): Promise<boolean> {
   const host = process.env.DB_HOST || 'localhost';

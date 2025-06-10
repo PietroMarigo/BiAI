@@ -1,16 +1,8 @@
 // @ts-nocheck
 import { Pool } from 'pg';
+import { getPool } from './db';
 
-let pool: Pool | null = null;
-if (process.env.DB_USER && process.env.DB_PASS && process.env.DB_NAME) {
-  pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT) || 5432,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME || 'users'
-  });
-}
+let pool: Pool | null = getPool();
 
 export async function createUser(
   username: string,
@@ -37,3 +29,4 @@ export async function createUser(
     return 'error';
   }
 }
+
