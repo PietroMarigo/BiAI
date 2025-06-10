@@ -80,6 +80,16 @@
           class="w-full rounded-xl bg-[#f0f5f4] p-4 placeholder-[#5f8c86] text-[#111817] focus:outline-none focus:ring-2 focus:ring-[#03b39f]"
         />
 
+        <!-- Email -->
+        <input
+          id="regEmail"
+          name="email"
+          type="email"
+          required
+          placeholder="Email"
+          class="w-full rounded-xl bg-[#f0f5f4] p-4 placeholder-[#5f8c86] text-[#111817] focus:outline-none focus:ring-2 focus:ring-[#03b39f]"
+        />
+
         <!-- Telegram ID (optional) -->
         <input
           id="regTelegram"
@@ -110,17 +120,17 @@
       </div>
     </form>
   <script>
-    const signupForm = document.getElementById('signupForm');
+    const registerForm = document.getElementById('registerForm');
     const statusEl = document.getElementById('status');
 
-    signupForm.addEventListener('submit', async (e) => {
+    registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = document.getElementById('signupUser').value;
-      const password = document.getElementById('signupPass').value;
-      const name = document.getElementById('signupName').value;
-      const surname = document.getElementById('signupSurname').value;
-      const email = document.getElementById('signupEmail').value;
-      const telegram_id = document.getElementById('signupTelegram').value;
+      const username = document.getElementById('regUser').value;
+      const password = document.getElementById('regPass').value;
+      const name = document.getElementById('regName').value;
+      const surname = document.getElementById('regSurname').value;
+      const email = document.getElementById('regEmail').value;
+      const telegram_id = document.getElementById('regTelegram').value;
       const res = await fetch('/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -128,7 +138,7 @@
       });
       if (res.ok) {
         statusEl.textContent = 'Registered! You can now log in.';
-        signupForm.reset();
+        registerForm.reset();
       } else {
         const text = await res.text();
         statusEl.textContent = 'Error: ' + text;
