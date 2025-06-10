@@ -1,26 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register - BiAI</title>
-  <link rel="stylesheet" href="/public/styles.css" />
-</head>
-<body>
-  <div class="container">
-    <h1>Register</h1>
-    <form id="signupForm">
-    <input id="signupUser" type="text" placeholder="Username" required>
-    <input id="signupPass" type="password" placeholder="Password" required>
-    <input id="signupName" type="text" placeholder="Name" required>
-    <input id="signupSurname" type="text" placeholder="Surname" required>
-    <input id="signupEmail" type="email" placeholder="Email" required>
-    <input id="signupTelegram" type="text" placeholder="Telegram ID (optional)">
-    <button type="submit">Register</button>
-    </form>
-    <button id="goLogin">Go to Login</button>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Register – BiAI</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
 
+    <!-- Google Fonts -->
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com/"
+      crossorigin
+    />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Lexend%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
+
+    <!-- TailwindCSS + container queries -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+
+  <body
+    class="flex items-center justify-center min-h-screen bg-white px-4"
+    style='font-family:"Lexend","Noto Sans",sans-serif;'
+  >
+    <form
+      id="registerForm"
+      class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden"
+      novalidate
+    >
+      <div class="p-6 flex flex-col gap-6">
+        <h2 class="text-center text-2xl font-bold text-[#111817]">
+          Create Your Account
+        </h2>
+
+        <!-- Name -->
+        <input
+          id="regName"
+          name="name"
+          type="text"
+          required
+          placeholder="Name"
+          class="w-full rounded-xl bg-[#f0f5f4] p-4 placeholder-[#5f8c86] text-[#111817] focus:outline-none focus:ring-2 focus:ring-[#03b39f]"
+        />
+
+        <!-- Surname -->
+        <input
+          id="regSurname"
+          name="surname"
+          type="text"
+          required
+          placeholder="Surname"
+          class="w-full rounded-xl bg-[#f0f5f4] p-4 placeholder-[#5f8c86] text-[#111817] focus:outline-none focus:ring-2 focus:ring-[#03b39f]"
+        />
+
+        <!-- Username -->
+        <input
+          id="regUser"
+          name="username"
+          type="text"
+          required
+          placeholder="Username"
+          class="w-full rounded-xl bg-[#f0f5f4] p-4 placeholder-[#5f8c86] text-[#111817] focus:outline-none focus:ring-2 focus:ring-[#03b39f]"
+        />
+
+        <!-- Password -->
+        <input
+          id="regPass"
+          name="password"
+          type="password"
+          required
+          placeholder="Password"
+          class="w-full rounded-xl bg-[#f0f5f4] p-4 placeholder-[#5f8c86] text-[#111817] focus:outline-none focus:ring-2 focus:ring-[#03b39f]"
+        />
+
+        <!-- Telegram ID (optional) -->
+        <input
+          id="regTelegram"
+          name="telegram_id"
+          type="text"
+          placeholder="Telegram ID (optional)"
+          class="w-full rounded-xl bg-[#f0f5f4] p-4 placeholder-[#5f8c86] text-[#111817] focus:outline-none focus:ring-2 focus:ring-[#03b39f]"
+        />
+
+        <!-- Register button (now teal like login) -->
+        <button
+          type="submit"
+          class="w-full rounded-full bg-[#03b39f] py-3 font-bold text-white hover:bg-[#02a08e] transition"
+        >
+          Register
+        </button>
+
+        <!-- Link to login -->
+        <div class="text-center">
+          <a
+            id="goLogin"
+            href="/login"
+            class="text-sm text-[#5f8c86] underline hover:text-[#444] transition"
+          >
+            Already have an account? Log in
+          </a>
+        </div>
+      </div>
+    </form>
   <script>
     const signupForm = document.getElementById('signupForm');
     const statusEl = document.getElementById('status');
