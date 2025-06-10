@@ -9,7 +9,9 @@
     "test": "npm run build && node dist/test.js"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "bcryptjs": "^3.0.2",
+    "express": "^4.21.2",
+    "pg": "^8.16.0"
   },
   "keywords": [],
   "author": "",
