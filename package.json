@@ -9,11 +9,12 @@
     "test": "npm run build && node dist/test.js"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "tsc": "^2.0.4",
-    "typescript": "^5.8.3"
     "bcryptjs": "^3.0.2",
+    "express": "^4.21.2",
     "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
   },
   "keywords": [],
   "author": "",
