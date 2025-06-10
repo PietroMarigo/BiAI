@@ -1,21 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - BiAI</title>
-  <link rel="stylesheet" href="/public/styles.css" />
-</head>
-<body>
-  <div class="container">
-    <h1>Login</h1>
-    <form id="loginForm">
-      <input id="loginUser" type="text" placeholder="Username" required />
-      <input id="loginPass" type="password" placeholder="Password" required />
-      <button type="submit">Login</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Login – BiAI</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+
+    <!-- Google Fonts -->
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com/"
+      crossorigin
+    />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Lexend%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
+
+    <!-- TailwindCSS + container queries -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+
+  <body
+    class="flex items-center justify-center min-h-screen bg-white px-4"
+    style='font-family:"Lexend","Noto Sans",sans-serif;'
+  >
+    <form
+      id="loginForm"
+      class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden"
+      novalidate
+    >
+      <!-- Hero image -->
+      <div
+        class="h-60 bg-center bg-cover"
+        style='background-image:url("https://lh3.googleusercontent.com/aida-public/AB6AXuBjFGZDhUjjcv-oQ8eD8klc33LPX0bhcRv3L1zLAHnaXdi6jcrPHvP9RIzqUZzIJI2eq4UUNiPQBJFdw3nHVZi87D1caOV2qEGn0nfKtWe-RccQEfM97AMhtB5eZ9ZNBji0YSWWgh75rgrCeuL5ZaLBHEt9lDeE7oNKDNjTWZMq64xExx2wG8pRO7ao_iHrGFHJnZc7cs-Z47tHO4gA3_p3VETVSIdlqamUM79oMRMoo4x7jJdOb_uyw_Uw2cB2Ff_GcPGVT70MZ5Q");'
+      ></div>
+
+      <div class="p-6 flex flex-col gap-6">
+        <h2
+          class="text-center text-2xl font-bold text-[#111817]"
+        >
+          Learn a language for free. Forever.
+        </h2>
+
+        <input
+          id="loginUser"
+          name="username"
+          type="text"
+          required
+          placeholder="Username or Email"
+          class="w-full rounded-xl bg-[#f0f5f4] p-4 placeholder-[#5f8c86] text-[#111817] focus:outline-none focus:ring-2 focus:ring-[#03b39f]"
+        />
+
+        <input
+          id="loginPass"
+          name="password"
+          type="password"
+          required
+          placeholder="Password"
+          class="w-full rounded-xl bg-[#f0f5f4] p-4 placeholder-[#5f8c86] text-[#111817] focus:outline-none focus:ring-2 focus:ring-[#03b39f]"
+        />
+
+        <button
+          type="submit"
+          class="w-full rounded-full bg-[#03b39f] py-3 font-bold text-white hover:bg-[#02a08e] transition"
+        >
+          Login
+        </button>
+
+        <p
+          id="forgotPassword"
+          class="text-center text-sm text-[#5f8c86] underline cursor-pointer"
+        >
+          Forgot password?
+        </p>
+
+        <button
+          type="button"
+          id="goRegister"
+          class="w-full rounded-full bg-[#f0f5f4] py-3 font-bold text-[#111817] hover:bg-[#e4e8e8] transition"
+        >
+          Get started
+        </button>
+      </div>
     </form>
-    <button id="goRegister">Go to Register</button>
-  </div>
   <script>
     const loginForm = document.getElementById('loginForm');
     const statusEl = document.getElementById('status');
