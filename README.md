@@ -68,7 +68,7 @@ n8n can interact with this project over HTTP APIs. Add your n8n credentials or A
 
 ## credentials file
 
-Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenRouter integration, set `OPEN_ROUTER_KEY=<your key>` in this file. Database variables (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`) are optional; when provided they enable writing new accounts to the `users` table. The server reads this file automatically so you don't need to load it manually. This file is listed in `.gitignore` so it will not be committed to the repository.
+Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenRouter integration, set `OPEN_ROUTER_KEY=<your key>` in this file. Database variables (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`) are optional; when provided they enable writing new accounts to the `users` table. The server reads this file automatically so you don't need to load it manually. Values should be written without surrounding quotes (e.g. `DB_USER=biaiuser`); any quotes will be stripped automatically but are best avoided. This file is listed in `.gitignore` so it will not be committed to the repository.
 
 ## Next steps
 
