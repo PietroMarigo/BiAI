@@ -6,6 +6,7 @@ import { fetchChatMessage } from './openrouter';
 import { checkDbConnection } from './db';
 import bcrypt from 'bcryptjs';
 import { createUser } from './register';
+import { getUserHash } from './login';
 
 function parseCookies(req: express.Request): Record<string, string> {
   const header = req.headers.cookie || '';
@@ -56,13 +57,20 @@ export function startServer(port: number) {
       res.status(500).send('Database error');
       return;
     }
-    users[username] = hash;
+    if (!process.env.DB_USER || !process.env.DB_PASS || !process.env.DB_NAME) {
+      users[username] = hash;
+    }
     res.status(201).send('Registered');
   });
 
   app.post('/login', async (req, res) => {
     const { username, password } = req.body || {};
-    const hash = users[username];
+    let hash: string | null | undefined;
+    if (process.env.DB_USER && process.env.DB_PASS && process.env.DB_NAME) {
+      hash = await getUserHash(username);
+    } else {
+      hash = users[username];
+    }
     if (hash && await bcrypt.compare(password, hash)) {
       res.cookie('user', encodeURIComponent(username), { httpOnly: true });
       res.status(200).send('Login successful');

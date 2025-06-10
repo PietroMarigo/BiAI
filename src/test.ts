@@ -2,7 +2,7 @@
 import http from 'http';
 import assert from 'assert';
 import net from 'net';
-import { startServer } from './server';
+import { newDb } from 'pg-mem';
 
 const PORT = 4000;
 const DB_PORT = 15432;
@@ -16,6 +16,23 @@ const dbServer = net.createServer(socket => {
 dbServer.listen(DB_PORT, 'localhost', () => {
   process.env.DB_HOST = 'localhost';
   process.env.DB_PORT = String(DB_PORT);
+  process.env.DB_USER = 'user';
+  process.env.DB_PASS = 'pass';
+  process.env.DB_NAME = 'testdb';
+
+  const mem = newDb();
+  mem.public.none(`CREATE TABLE users (
+    username text primary key,
+    password_hash text,
+    name text,
+    surname text,
+    email text,
+    telegram_id text
+  )`);
+  const pg = mem.adapters.createPg();
+  (require as any).cache[require.resolve('pg')] = { exports: pg };
+
+  const { startServer } = require('./server');
 
   const server = startServer(PORT);
 
