@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Register - BiAI</title>
-  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="stylesheet" href="/public/styles.css" />
 </head>
 <body>
-  <h1>Register</h1>
-  <form id="signupForm">
-    <input id="signupUser" type="text" placeholder="Username" required>
-    <input id="signupPass" type="password" placeholder="Password" required>
-    <button type="submit">Register</button>
-  </form>
-  <button id="goLogin">Go to Login</button>
-  <p id="status"></p>
+  <div class="container">
+    <h1>Register</h1>
+    <form id="registerForm">
+      <input id="regName"   type="text"    placeholder="Name"        required />
+      <input id="regUser"   type="text"    placeholder="Username"    required />
+      <input id="regPass"   type="password"placeholder="Password"    required />
+      <button type="submit">Register</button>
+    </form>
+    <button id="goLogin">Go to Login</button>
+  </div>
 
   <script>
     const signupForm = document.getElementById('signupForm');
