@@ -9,11 +9,14 @@
 <body>
   <div class="container">
     <h1>Register</h1>
-    <form id="registerForm">
-      <input id="regName"   type="text"    placeholder="Name"        required />
-      <input id="regUser"   type="text"    placeholder="Username"    required />
-      <input id="regPass"   type="password"placeholder="Password"    required />
-      <button type="submit">Register</button>
+    <form id="signupForm">
+    <input id="signupUser" type="text" placeholder="Username" required>
+    <input id="signupPass" type="password" placeholder="Password" required>
+    <input id="signupName" type="text" placeholder="Name" required>
+    <input id="signupSurname" type="text" placeholder="Surname" required>
+    <input id="signupEmail" type="email" placeholder="Email" required>
+    <input id="signupTelegram" type="text" placeholder="Telegram ID (optional)">
+    <button type="submit">Register</button>
     </form>
     <button id="goLogin">Go to Login</button>
   </div>
@@ -26,10 +29,14 @@
       e.preventDefault();
       const username = document.getElementById('signupUser').value;
       const password = document.getElementById('signupPass').value;
+      const name = document.getElementById('signupName').value;
+      const surname = document.getElementById('signupSurname').value;
+      const email = document.getElementById('signupEmail').value;
+      const telegram_id = document.getElementById('signupTelegram').value;
       const res = await fetch('/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password, name, surname, email, telegram_id })
       });
       if (res.ok) {
         statusEl.textContent = 'Registered! You can now log in.';

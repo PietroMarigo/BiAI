@@ -29,8 +29,9 @@ This repository contains a minimal setup for a language learning Progressive Web
    ```bash
    npm start
    ```
+
    The server listens on port `3000` by default. When a user visits `/`, the backend checks for a `user` cookie and redirects to `/homepage` if present or `/login` otherwise. Static files are served from `/public/`.
-Login and registration pages are provided in `public/login.html` and `public/register.html`. The backend serves these pages on `GET /login` and `GET /register`. Each page links to `/public/styles.css` for consistent styling. After logging in successfully, the backend sets a `user` cookie.
+Login and registration pages are provided in `public/login.html` and `public/register.html`. The backend serves these pages on `GET /login` and `GET /register`. Each page links to `/public/styles.css` for consistent styling. Registration now creates a user record in the PostgreSQL `users` table using the credentials from the `credentials` file (if those variables are present). After logging in successfully, the backend sets a `user` cookie.
    The `/homepage` route displays `Hello $USER` using the cookie value. The raw response from OpenRouter is still printed to the console by `fetchChatMessage`, though it is not invoked in the homepage yet.
 
 4. **Run tests**
@@ -67,7 +68,7 @@ n8n can interact with this project over HTTP APIs. Add your n8n credentials or A
 
 ## credentials file
 
-Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenRouter integration, set `OPEN_ROUTER_KEY=<your key>` in this file. The server reads the file automatically, so you don't need to load it manually. This file is listed in `.gitignore` so it will not be committed to the repository.
+Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenRouter integration, set `OPEN_ROUTER_KEY=<your key>` in this file. Database variables (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`) are optional; when provided they enable writing new accounts to the `users` table. The server reads this file automatically so you don't need to load it manually. This file is listed in `.gitignore` so it will not be committed to the repository.
 
 ## Next steps
 

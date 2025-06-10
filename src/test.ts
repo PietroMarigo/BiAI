@@ -19,7 +19,13 @@ dbServer.listen(DB_PORT, 'localhost', () => {
 
   const server = startServer(PORT);
 
-  const registerData = JSON.stringify({ username: 'user', password: 'pass' });
+  const registerData = JSON.stringify({
+    username: 'user',
+    password: 'pass',
+    name: 'Test',
+    surname: 'User',
+    email: 'test@example.com'
+  });
   const regOptions = {
     hostname: 'localhost',
     port: PORT,
