@@ -103,7 +103,7 @@ dbServer.listen(DB_PORT, 'localhost', () => {
             server.close();
             dbServer.close();
             try {
-              assert.ok(body.includes('Hello user'));
+              assert.ok(body.includes('Continue where you left off'));
               assert.ok(dbConnected);
               console.log('Test passed');
               process.exit(0);

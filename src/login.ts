@@ -2,9 +2,12 @@
 import { Pool } from 'pg';
 import { getPool } from './db';
 
-let pool: Pool | null = getPool();
+let pool: Pool | null = null;
 
 export async function getUserHash(username: string): Promise<string | null> {
+  if (!pool) {
+    pool = getPool();
+  }
   if (!pool) {
     return null;
   }
