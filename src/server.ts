@@ -81,14 +81,11 @@ export function startServer(port: number) {
 
   app.get('/homepage', (req, res) => {
     const cookies = parseCookies(req);
-    const user = cookies['user'];
-    if (!user) {
+    if (!cookies['user']) {
       res.redirect('/login');
       return;
     }
-    const safeUser = String(user).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const html = `<!DOCTYPE html><html><head><title>Home</title><link rel="stylesheet" href="/public/styles.css"></head><body><h1>Hello ${safeUser}</h1></body></html>`;
-    res.send(html);
+    res.sendFile(path.join(__dirname, '..', 'public', 'home.html'));
   });
 
   app.get('/', (req, res) => {
