@@ -82,8 +82,7 @@ export function startServer(port: number) {
 
   app.get('/homepage', async (req, res) => {
     const cookies = parseCookies(req);
-    const user = cookies['user'];
-    if (!user) {
+    if (!cookies['user']) {
       res.redirect('/login');
       return;
     }
