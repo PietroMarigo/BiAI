@@ -1,38 +1,81 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Welcome</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-  </head>
-  <body class="p-4" style='font-family: Lexend, "Noto Sans", sans-serif;'>
-    <h1 class="text-2xl font-bold mb-4">Set up your language goals</h1>
-    <form id="prefForm" class="flex flex-col gap-4 max-w-sm">
-      <input id="lang" name="language" placeholder="Language" required class="rounded-xl bg-[#f0f5f4] p-3" />
-      <input id="objective" name="objective" placeholder="Purpose" required class="rounded-xl bg-[#f0f5f4] p-3" />
-      <button type="submit" class="rounded-full bg-[#03b39f] text-white py-2">Save</button>
-      <button type="button" id="evaluate" class="rounded-full bg-[#5f8c87] text-white py-2">Evaluate level</button>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Set Up Your Goals – BiAI</title>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <link
+    rel="stylesheet"
+    as="style"
+    onload="this.rel='stylesheet'"
+    href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900"
+  />
+
+  <!-- TailwindCSS + container queries -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body
+  class="flex items-center justify-center bg-gray-100 min-h-screen px-4"
+  style="font-family:'Lexend','Noto Sans',sans-serif;"
+>
+  <div class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
+    <!-- Header -->
+    <header class="bg-white px-6 py-4 border-b">
+      <h1 class="text-center text-lg font-bold text-[#131615]">
+        Set Up Your Goals
+      </h1>
+    </header>
+
+    <!-- Form -->
+    <form id="prefForm" class="flex flex-col gap-4 px-6 py-6">
+      <input
+        id="lang"
+        name="language"
+        type="text"
+        required
+        placeholder="Language"
+        class="form-input w-full rounded-xl bg-[#f0f5f5] h-14 p-4 text-[#101818] placeholder-[#5e8d8d] focus:outline-none focus:ring-0 focus:border-none"
+      />
+
+      <input
+        id="objective"
+        name="objective"
+        type="text"
+        required
+        placeholder="Purpose"
+        class="form-input w-full rounded-xl bg-[#f0f5f5] h-14 p-4 text-[#101818] placeholder-[#5e8d8d] focus:outline-none focus:ring-0 focus:border-none"
+      />
+
+      <div class="flex gap-3">
+        <button
+          type="submit"
+          class="flex-1 bg-[#00a7a7] text-white rounded-full h-12 font-bold"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          id="evaluate"
+          class="flex-1 bg-[#f0f5f5] text-[#101818] rounded-full h-12 font-bold"
+        >
+          Evaluate Level
+        </button>
+      </div>
+
       <p id="status" class="text-center text-sm text-red-500"></p>
     </form>
-    <script>
-      const form = document.getElementById('prefForm');
-      const statusEl = document.getElementById('status');
-      form.addEventListener('submit', async e => {
-        e.preventDefault();
-        const language = document.getElementById('lang').value;
-        const objective = document.getElementById('objective').value;
-        const res = await fetch('/first-login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ language, objective })
-        });
-        if (res.ok) {
-          window.location.href = '/homepage';
-        } else {
-          const text = await res.text();
-          statusEl.textContent = text;
-        }
-      });
-    </script>
-  </body>
-</html>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    const form = document.getElementById('prefForm');
+    const statusEl = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const l
+
