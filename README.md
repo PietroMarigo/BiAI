@@ -66,6 +66,13 @@ docker run -it --name biai-n8n -p 5678:5678 n8nio/n8n
 
 n8n can interact with this project over HTTP APIs. Add your n8n credentials or API keys to the `credentials` file and load them at runtime.
 
+#### Sample workflow
+
+1. Start n8n and create a new workflow with an **HTTP Trigger** node. Set the method to `POST` and choose a path such as `/webhook/evaluate`.
+2. Add an **AI** or **HTTP Request** node that sends the incoming `language` and `objective` fields to your preferred model. Format the response as an array of questions and connect it back to a **Respond to Webhook** node. The workflow should return `{ "questions": ["...", "..."] }`.
+3. Create a second **HTTP Trigger** node on `/webhook/evaluate/finish` that receives the array of `answers`. Send these to the model to determine the level and connect the result to a **PostgreSQL** node to run `UPDATE user_languages SET actual_level=$1 WHERE username=$2`.
+4. Note the external URL of the first trigger and set `N8N_WEBHOOK_URL=<url>` in the `credentials` file so the server knows where to send evaluation requests.
+
 ## credentials file
 
 Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenRouter integration, set `OPEN_ROUTER_KEY=<your key>` in this file. Database variables (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`) are optional; when provided they enable writing new accounts to the `users` table. The server reads this file automatically so you don't need to load it manually. Values should be written without surrounding quotes (e.g. `DB_USER=biaiuser`); any quotes will be stripped automatically but are best avoided. This file is listed in `.gitignore` so it will not be committed to the repository.

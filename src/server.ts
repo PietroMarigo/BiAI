@@ -8,6 +8,7 @@ import bcrypt from 'bcryptjs';
 import { createUser } from './register';
 import { getUserHash } from './login';
 import { saveUserPrefs, hasUserPrefs } from './firstLogin';
+import { startEvaluation, finishEvaluation } from './evaluate';
 
 function parseCookies(req: express.Request): Record<string, string> {
   const header = req.headers.cookie || '';
@@ -120,6 +121,55 @@ export function startServer(port: number) {
       res.status(200).send('Saved');
     } else {
       res.status(500).send('Database error');
+    }
+  });
+
+  app.get('/evaluate', async (req, res) => {
+    const cookies = parseCookies(req);
+    const username = cookies['user'];
+    if (!username) {
+      res.redirect('/login');
+      return;
+    }
+    if (!(await hasUserPrefs(username))) {
+      res.redirect('/first-login');
+      return;
+    }
+    res.sendFile(path.join(__dirname, '..', 'public', 'evaluate.html'));
+  });
+
+  app.get('/evaluate/start', async (req, res) => {
+    const cookies = parseCookies(req);
+    const username = cookies['user'];
+    if (!username) {
+      res.status(401).send('Not logged in');
+      return;
+    }
+    const questions = await startEvaluation(username);
+    if (questions) {
+      res.json(questions);
+    } else {
+      res.status(500).send('Unable to start evaluation');
+    }
+  });
+
+  app.post('/evaluate/finish', async (req, res) => {
+    const cookies = parseCookies(req);
+    const username = cookies['user'];
+    const { answers } = req.body || {};
+    if (!username) {
+      res.status(401).send('Not logged in');
+      return;
+    }
+    if (!Array.isArray(answers)) {
+      res.status(400).send('Invalid data');
+      return;
+    }
+    const ok = await finishEvaluation(username, answers);
+    if (ok) {
+      res.status(200).send('Saved');
+    } else {
+      res.status(500).send('Error');
     }
   });
 
