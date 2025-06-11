@@ -2,7 +2,7 @@
 import { Pool } from 'pg';
 import { getPool } from './db';
 
-let pool: Pool | null = getPool();
+let pool: Pool | null = null;
 
 export async function createUser(
   username: string,
@@ -12,6 +12,9 @@ export async function createUser(
   email: string,
   telegramId?: string
 ): Promise<'ok' | 'exists' | 'error'> {
+  if (!pool) {
+    pool = getPool();
+  }
   if (!pool) {
     return 'ok';
   }
