@@ -82,11 +82,12 @@ export function startServer(port: number) {
 
   app.get('/homepage', async (req, res) => {
     const cookies = parseCookies(req);
-    if (!cookies['user']) {
+    const username = cookies['user'];
+    if (!username) {
       res.redirect('/login');
       return;
     }
-    if (!(await hasUserPrefs(user))) {
+    if (!(await hasUserPrefs(username))) {
       res.redirect('/first-login');
       return;
     }
@@ -104,9 +105,9 @@ export function startServer(port: number) {
 
   app.post('/first-login', async (req, res) => {
     const cookies = parseCookies(req);
-    const user = cookies['user'];
+    const username = cookies['user'];
     const { language, objective } = req.body || {};
-    if (!user) {
+    if (!username) {
       res.status(401).send('Not logged in');
       return;
     }
@@ -114,7 +115,7 @@ export function startServer(port: number) {
       res.status(400).send('Missing fields');
       return;
     }
-    const ok = await saveUserPrefs(user, language, objective);
+    const ok = await saveUserPrefs(username, language, objective);
     if (ok) {
       res.status(200).send('Saved');
     } else {
