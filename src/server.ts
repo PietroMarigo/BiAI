@@ -7,6 +7,7 @@ import { checkDbConnection } from './db';
 import bcrypt from 'bcryptjs';
 import { createUser } from './register';
 import { getUserHash } from './login';
+import { saveUserPrefs, hasUserPrefs } from './firstLogin';
 
 function parseCookies(req: express.Request): Record<string, string> {
   const header = req.headers.cookie || '';
@@ -79,16 +80,47 @@ export function startServer(port: number) {
     }
   });
 
-  app.get('/homepage', (req, res) => {
+  app.get('/homepage', async (req, res) => {
     const cookies = parseCookies(req);
     const user = cookies['user'];
     if (!user) {
       res.redirect('/login');
       return;
     }
-    const safeUser = String(user).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const html = `<!DOCTYPE html><html><head><title>Home</title><link rel="stylesheet" href="/public/styles.css"></head><body><h1>Hello ${safeUser}</h1></body></html>`;
-    res.send(html);
+    if (!(await hasUserPrefs(user))) {
+      res.redirect('/first-login');
+      return;
+    }
+    res.sendFile(path.join(__dirname, '..', 'public', 'home.html'));
+  });
+
+  app.get('/first-login', (req, res) => {
+    const cookies = parseCookies(req);
+    if (!cookies['user']) {
+      res.redirect('/login');
+      return;
+    }
+    res.sendFile(path.join(__dirname, '..', 'public', 'landing.html'));
+  });
+
+  app.post('/first-login', async (req, res) => {
+    const cookies = parseCookies(req);
+    const user = cookies['user'];
+    const { language, objective } = req.body || {};
+    if (!user) {
+      res.status(401).send('Not logged in');
+      return;
+    }
+    if (!language || !objective) {
+      res.status(400).send('Missing fields');
+      return;
+    }
+    const ok = await saveUserPrefs(user, language, objective);
+    if (ok) {
+      res.status(200).send('Saved');
+    } else {
+      res.status(500).send('Database error');
+    }
   });
 
   app.get('/', (req, res) => {

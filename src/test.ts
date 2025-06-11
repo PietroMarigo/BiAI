@@ -28,7 +28,13 @@ dbServer.listen(DB_PORT, 'localhost', () => {
     surname text,
     email text,
     telegram_id text
-  )`);
+  );
+  CREATE TABLE user_languages (
+    username text primary key,
+    language text,
+    objective text,
+    actual_level text not null
+  );`);
   const pg = mem.adapters.createPg();
   (require as any).cache[require.resolve('pg')] = { exports: pg };
 
@@ -97,21 +103,52 @@ dbServer.listen(DB_PORT, 'localhost', () => {
           headers: { cookie }
         };
         const homeReq = http.request(homeOptions, homeRes => {
-          let body = '';
-          homeRes.on('data', chunk => { body += chunk; });
-          homeRes.on('end', () => {
-            server.close();
-            dbServer.close();
-            try {
-              assert.ok(body.includes('Hello user'));
-              assert.ok(dbConnected);
-              console.log('Test passed');
-              process.exit(0);
-            } catch (err) {
-              console.error('Test failed');
-              process.exit(1);
+          assert.strictEqual(homeRes.statusCode, 302);
+          assert.strictEqual(homeRes.headers.location, '/first-login');
+
+          const saveData = JSON.stringify({ language: 'English', objective: 'work' });
+          const saveOptions = {
+            hostname: 'localhost',
+            port: PORT,
+            path: '/first-login',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(saveData),
+              cookie
             }
+          };
+          const saveReq = http.request(saveOptions, saveRes => {
+            assert.strictEqual(saveRes.statusCode, 200);
+
+            const finalOptions = {
+              hostname: 'localhost',
+              port: PORT,
+              path: '/homepage',
+              method: 'GET',
+              headers: { cookie }
+            };
+            const finalReq = http.request(finalOptions, finalRes => {
+              let body = '';
+              finalRes.on('data', c => { body += c; });
+              finalRes.on('end', () => {
+                server.close();
+                dbServer.close();
+                try {
+                  assert.ok(body.includes('Continue where you left off'));
+                  assert.ok(dbConnected);
+                  console.log('Test passed');
+                  process.exit(0);
+                } catch (err) {
+                  console.error('Test failed');
+                  process.exit(1);
+                }
+              });
+            });
+            finalReq.end();
           });
+          saveReq.write(saveData);
+          saveReq.end();
         });
         homeReq.end();
       });
