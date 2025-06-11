@@ -74,8 +74,22 @@
   <script>
     const form = document.getElementById('prefForm');
     const statusEl = document.getElementById('status');
-
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
-      const l
-
+      const language = document.getElementById('lang').value;
+      const objective = document.getElementById('objective').value;
+      const res = await fetch('/first-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language, objective })
+      });
+      if (res.ok) {
+        window.location.href = '/homepage';
+      } else {
+        const text = await res.text();
+        statusEl.textContent = text;
+      }
+    });
+  </script>
+</body>
+</html>
