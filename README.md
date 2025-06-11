@@ -30,9 +30,9 @@ This repository contains a minimal setup for a language learning Progressive Web
    npm start
    ```
 
-   The server listens on port `3000` by default. When a user visits `/`, the backend checks for a `user` cookie and redirects to `/homepage` if present or `/login` otherwise. Static files are served from `/public/`.
+  The server listens on port `3000` by default. When a user visits `/`, the backend checks for a `user` cookie and redirects to `/homepage` if present or `/login` otherwise. Static files are served from `/public/`.
 Login and registration pages are provided in `public/login.html` and `public/register.html`. The backend serves these pages on `GET /login` and `GET /register`. Each page links to `/public/styles.css` for consistent styling. Registration now creates a user record in the PostgreSQL `users` table using the credentials from the `credentials` file (if those variables are present). The code assumes this table already exists; it will not attempt to create it automatically. After logging in successfully, the backend sets a `user` cookie.
-   The `/homepage` route displays `Hello $USER` using the cookie value. The raw response from OpenRouter is still printed to the console by `fetchChatMessage`, though it is not invoked in the homepage yet.
+  The `/homepage` route sends the static `public/home.html` file after verifying the cookie. If the user has not yet selected a language and objective, the server redirects to `/first-login` instead. That page collects the desired language and learning purpose and stores them in the `user_languages` table, which has columns `username`, `language`, `objective` and `actual_level` (initially set to `beginner`). The `username` column references the `users` table and the `actual_level` column is optional. This page contains a responsive layout that works on mobile and desktop.
 
 4. **Run tests**
 
@@ -40,7 +40,7 @@ Login and registration pages are provided in `public/login.html` and `public/reg
    npm test
    ```
 
-   The tests start the server, request the `/` route and verify that a response from the OpenRouter API (or fallback message) is returned.
+   The tests start the server, register and log in a user, then request `/homepage` and check that the page contains "Continue where you left off".
 
 ## Additional Services
 
@@ -66,9 +66,16 @@ docker run -it --name biai-n8n -p 5678:5678 n8nio/n8n
 
 n8n can interact with this project over HTTP APIs. Add your n8n credentials or API keys to the `credentials` file and load them at runtime.
 
+#### Sample workflow
+
+1. Start n8n and create a new workflow with an **HTTP Trigger** node. Set the method to `POST` and choose a path such as `/webhook/evaluate`.
+2. Add an **AI** or **HTTP Request** node that sends the incoming `language` and `objective` fields to your preferred model. Format the response as an array of questions and connect it back to a **Respond to Webhook** node. The workflow should return `{ "questions": ["...", "..."] }`.
+3. Create a second **HTTP Trigger** node on `/webhook/evaluate/finish` that receives the array of `answers`. Send these to the model to determine the level and connect the result to a **PostgreSQL** node to run `UPDATE user_languages SET actual_level=$1 WHERE username=$2`.
+4. Note the external URL of the first trigger and set `N8N_WEBHOOK_URL=<url>` in the `credentials` file so the server knows where to send evaluation requests.
+
 ## credentials file
 
-Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenRouter integration, set `OPEN_ROUTER_KEY=<your key>` in this file. Database variables (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`) are optional; when provided they enable writing new accounts to the `users` table. The server reads this file automatically so you don't need to load it manually. This file is listed in `.gitignore` so it will not be committed to the repository.
+Create a file named `credentials` in the project root to store secrets such as database passwords or API tokens. For the OpenRouter integration, set `OPEN_ROUTER_KEY=<your key>` in this file. Database variables (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`) are optional; when provided they enable writing new accounts to the `users` table. The server reads this file automatically so you don't need to load it manually. Values should be written without surrounding quotes (e.g. `DB_USER=biaiuser`); any quotes will be stripped automatically but are best avoided. This file is listed in `.gitignore` so it will not be committed to the repository.
 
 ## Next steps
 

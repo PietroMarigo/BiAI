@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluate Level - BiAI</title>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-white" style='font-family: Lexend, "Noto Sans", sans-serif;'>
+  <div class="w-full max-w-md flex flex-col gap-4 p-4">
+    <h1 class="text-center text-lg font-bold text-[#111818]">Level Evaluation</h1>
+    <div id="question" class="min-h-[4rem] p-2"></div>
+    <form id="answerForm" class="flex flex-col gap-3">
+      <input id="answer" type="text" required placeholder="Your answer" class="form-input rounded-xl bg-[#f0f5f4] p-3 text-[#111818]" />
+      <button type="submit" class="bg-[#00a7a7] text-white rounded-full h-12 font-bold">Next</button>
+    </form>
+  </div>
+  <script>
+    const questionEl = document.getElementById('question');
+    const form = document.getElementById('answerForm');
+    const input = document.getElementById('answer');
+    let questions = [];
+    let answers = [];
+    let index = 0;
+
+    async function loadQuestions() {
+      const res = await fetch('/evaluate/start');
+      if (res.ok) {
+        questions = await res.json();
+        showQuestion();
+      } else {
+        questionEl.textContent = 'Error loading questions';
+      }
+    }
+
+    function showQuestion() {
+      if (index < questions.length) {
+        questionEl.textContent = questions[index];
+        input.value = '';
+        input.focus();
+      } else {
+        submitAnswers();
+      }
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      answers.push(input.value);
+      index++;
+      showQuestion();
+    });
+
+    async function submitAnswers() {
+      const res = await fetch('/evaluate/finish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers })
+      });
+      if (res.ok) {
+        window.location.href = '/homepage';
+      } else {
+        questionEl.textContent = 'Error submitting answers';
+      }
+    }
+
+    loadQuestions();
+  </script>
+</body>
+</html>

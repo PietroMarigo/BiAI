@@ -9,7 +9,13 @@ export function loadCredentials() {
       const match = line.match(/^\s*([^#=]+?)\s*=\s*(.*)\s*$/);
       if (match) {
         const key = match[1];
-        const value = match[2];
+        let value = match[2];
+        if (
+          (value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))
+        ) {
+          value = value.slice(1, -1);
+        }
         if (!process.env[key]) {
           process.env[key] = value;
         }
