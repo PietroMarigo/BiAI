@@ -30,10 +30,10 @@ dbServer.listen(DB_PORT, 'localhost', () => {
     telegram_id text
   );
   CREATE TABLE user_languages (
-    username text primary key,
+    username text primary key references users(username),
     language text,
     objective text,
-    actual_level text not null
+    actual_level text
   );`);
   const pg = mem.adapters.createPg();
   (require as any).cache[require.resolve('pg')] = { exports: pg };
