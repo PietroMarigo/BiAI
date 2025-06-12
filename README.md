@@ -68,10 +68,10 @@ n8n can interact with this project over HTTP APIs. Add your n8n credentials or A
 
 #### Sample workflow
 
-1. Start n8n and create a new workflow with an **HTTP Trigger** node. Set the method to `POST` and choose a path such as `/webhook/evaluate`.
-2. Add an **AI** or **HTTP Request** node that sends the incoming `language` and `objective` fields to your preferred model. Format the response as an array of questions and connect it back to a **Respond to Webhook** node. The workflow should return `{ "questions": ["...", "..."] }`.
-3. Create a second **HTTP Trigger** node on `/webhook/evaluate/finish` that receives the array of `answers`. Send these to the model to determine the level and connect the result to a **PostgreSQL** node to run `UPDATE user_languages SET actual_level=$1 WHERE username=$2`.
-4. Note the external URL of the first trigger and set `N8N_WEBHOOK_URL=<url>` in the `credentials` file so the server knows where to send evaluation requests.
+1. Start n8n and create a workflow with an **HTTP Trigger** node. This endpoint generates the quiz questions. Set the method to `POST` and choose a path such as `/webhook/evaluate`.
+2. Add an **AI** or **HTTP Request** node that sends the incoming `language` and `objective` fields to your preferred model. Format the response as JSON that contains the questions (with answers) and connect it back to a **Respond to Webhook** node.
+3. Create a second workflow with another **HTTP Trigger** node on `/webhook/evaluate/finish`. This receives the original quiz together with the user's answers and returns the detected level. Optionally update the database with a **PostgreSQL** node.
+4. Note the external URL of the first trigger and set `N8N_WEBHOOK_URL=<url>` in the `credentials` file. Set `N8N_GRADE_URL=<url>` to the second workflow so the server knows where to send answers for grading.
 
 ## credentials file
 
