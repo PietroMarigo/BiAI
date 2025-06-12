@@ -98,7 +98,13 @@ export async function getPrefs(username: string) {
   const p = await ensurePool();
   if (!p) return null;
   try {
-    const res = await p.query('SELECT language, objective FROM user_languages WHERE username = $1', [username]);
+    const res = await p.query(
+      `SELECT l.code AS language, ul.objective
+       FROM user_languages ul
+       JOIN languages l ON ul.language_id = l.id
+       WHERE ul.username = $1`,
+      [username]
+    );
     if (res.rowCount > 0) {
       return res.rows[0];
     }
