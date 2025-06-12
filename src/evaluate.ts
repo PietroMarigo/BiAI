@@ -117,7 +117,11 @@ export async function startEvaluation(username: string): Promise<Question[] | nu
     const res = await fetch(process.env.N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ language: prefs.language, objective: prefs.objective })
+      body: JSON.stringify({
+        username,
+        language: prefs.language,
+        objective: prefs.objective
+      })
     });
     if (!res.ok) return null;
     const raw = await res.json();
