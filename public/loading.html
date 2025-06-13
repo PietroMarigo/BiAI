@@ -15,14 +15,16 @@
   </div>
   <script>
     async function startEval() {
-      const res = await fetch('/evaluate/start');
-      if (res.ok) {
-        const questions = await res.json();
-        sessionStorage.setItem('quizQuestions', JSON.stringify(questions));
-        window.location.href = '/evaluate';
-      } else {
-        document.getElementById('msg').textContent = 'Error starting evaluation';
-      }
+      await fetch('/evaluate/start');
+      const timer = setInterval(async () => {
+        const res = await fetch('/evaluate/questions');
+        if (res.ok) {
+          const questions = await res.json();
+          clearInterval(timer);
+          sessionStorage.setItem('quizQuestions', JSON.stringify(questions));
+          window.location.href = '/evaluate';
+        }
+      }, 1000);
     }
     startEval();
   </script>

@@ -8,7 +8,11 @@ import bcrypt from 'bcryptjs';
 import { createUser } from './register';
 import { getUserHash } from './login';
 import { saveUserPrefs, hasUserPrefs } from './firstLogin';
-import { startEvaluation, finishEvaluation, getStoredQuestions } from './evaluate';
+import {
+  startEvaluation,
+  finishEvaluation,
+  getQuestionsForUser
+} from './evaluate';
 
 function parseCookies(req: express.Request): Record<string, string> {
   const header = req.headers.cookie || '';
@@ -159,11 +163,24 @@ export function startServer(port: number) {
       res.status(401).send('Not logged in');
       return;
     }
-    const questions = await startEvaluation(username);
-    if (questions) {
-      res.redirect('/evaluate');
+    startEvaluation(username).catch(err => {
+      console.error('startEvaluation failed:', err);
+    });
+    res.status(202).send('started');
+  });
+
+  app.get('/evaluate/questions', (req, res) => {
+    const cookies = parseCookies(req);
+    const username = cookies['user'];
+    if (!username) {
+      res.status(401).send('Not logged in');
+      return;
+    }
+    const q = getQuestionsForUser(username);
+    if (q) {
+      res.json(q);
     } else {
-      res.status(500).send('Unable to start evaluation');
+      res.status(204).end();
     }
   });
 

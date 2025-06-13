@@ -103,7 +103,7 @@ export function cleanN8nOutput(raw: RawN8nOutput): Quiz {
 
 const quizzes: Map<string, Quiz> = new Map();
 
-export function getStoredQuestions(username: string): Question[] | null {
+export function getQuestionsForUser(username: string): Question[] | null {
   const quiz = quizzes.get(username);
   if (!quiz) return null;
   return quiz.questions.map(q => {
