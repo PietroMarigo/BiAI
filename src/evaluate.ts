@@ -85,6 +85,15 @@ export function cleanN8nOutput(raw: RawN8nOutput): Quiz {
 
 const quizzes: Map<string, Quiz> = new Map();
 
+export function getStoredQuestions(username: string): Question[] | null {
+  const quiz = quizzes.get(username);
+  if (!quiz) return null;
+  return quiz.questions.map(q => {
+    const { answer, answer_keywords, ...rest } = q as any;
+    return rest;
+  });
+}
+
 let pool: Pool | null = null;
 
 async function ensurePool() {
@@ -98,7 +107,13 @@ export async function getPrefs(username: string) {
   const p = await ensurePool();
   if (!p) return null;
   try {
-    const res = await p.query('SELECT language, objective FROM user_languages WHERE username = $1', [username]);
+    const res = await p.query(
+      `SELECT l.code AS language, ul.objective
+       FROM user_languages ul
+       JOIN languages l ON ul.language_id = l.id
+       WHERE ul.username = $1`,
+      [username]
+    );
     if (res.rowCount > 0) {
       return res.rows[0];
     }
@@ -120,7 +135,12 @@ export async function startEvaluation(username: string): Promise<Question[] | nu
       objective: prefs.objective
     };
     console.log('Posting evaluation start payload:', payload);
-    const res = await fetch(process.env.N8N_WEBHOOK_URL, {
+
+    const url = process.env.N8N_WEBHOOK_URL.includes('?')
+      ? `${process.env.N8N_WEBHOOK_URL}&wait=1`
+      : `${process.env.N8N_WEBHOOK_URL}?wait=1`;
+
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

@@ -22,7 +22,7 @@
     let index = 0;
 
     async function loadQuestions() {
-      const res = await fetch('/evaluate/start');
+      const res = await fetch('/evaluate/questions');
       if (res.ok) {
         questions = await res.json();
         renderQuestion();
@@ -97,12 +97,12 @@
         const selects = questionEl.querySelectorAll('select');
         const parts = [];
         selects.forEach((s, i) => {
-          parts.push(q.items[i].french + ':' + (s as HTMLSelectElement).value);
+          parts.push(q.items[i].french + ':' + s.value);
         });
         ans = parts.join(',');
       } else {
         const input = questionEl.querySelector('input');
-        if (input) ans = (input as HTMLInputElement).value;
+        if (input) ans = input.value;
       }
       answers.push(ans);
       index++;
