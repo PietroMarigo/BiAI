@@ -62,7 +62,7 @@ type RawN8nOutput = Array<{ output: string }>;
  * Cleans the output coming from the n8n node, stripping markdown fences
  * and parsing the inner JSON.
  */
-export function cleanN8nOutput(raw: RawN8nOutput): Quiz {
+function parseN8nJson(raw: RawN8nOutput): any {
   if (!Array.isArray(raw) || raw.length === 0) {
     throw new Error('Invalid input: expected a non-empty array');
   }
@@ -90,15 +90,24 @@ export function cleanN8nOutput(raw: RawN8nOutput): Quiz {
     if (!text) continue;
     try {
       const parsed = typeof text === 'string' ? JSON.parse(text) : text;
-      if (parsed && Array.isArray((parsed as any).questions)) {
-        return parsed as Quiz;
+      if (parsed && typeof parsed === 'object') {
+        return parsed;
       }
     } catch {
       // try next
     }
   }
-  console.error('Failed to parse n8n output:\n', jsonText);
-  throw new Error('Could not clean/parse n8n output JSON');
+  console.error('Failed to parse n8n JSON:\n', jsonText);
+  throw new Error('Could not parse n8n JSON');
+}
+
+export function cleanN8nOutput(raw: RawN8nOutput): Quiz {
+  const parsed = parseN8nJson(raw);
+  if (!Array.isArray((parsed as any).questions)) {
+    console.error('No questions field in n8n output');
+    throw new Error('Could not clean/parse n8n output JSON');
+  }
+  return parsed as Quiz;
 }
 
 const quizzes: Map<string, Quiz> = new Map();
@@ -197,9 +206,10 @@ export async function finishEvaluation(
       body: JSON.stringify({ username, quiz, answers })
     });
     if (!res.ok) return null;
-    const data = await res.json();
-    const level = data.level;
-    const suggestion = data.suggestion || data.recommendation;
+    const raw = await res.json();
+    const data = parseN8nJson(raw);
+    const level = (data as any).level;
+    const suggestion = (data as any).suggestion || (data as any).recommendation;
     if (!level) return null;
     const p = await ensurePool();
     if (p) {
