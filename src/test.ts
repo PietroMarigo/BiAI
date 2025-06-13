@@ -29,11 +29,17 @@ dbServer.listen(DB_PORT, 'localhost', () => {
     email text,
     telegram_id text
   );
+  CREATE TABLE languages (
+    id serial primary key,
+    code text unique,
+    name text,
+    created_at timestamp with time zone default now()
+  );
   CREATE TABLE user_languages (
     username text primary key references users(username),
-    language text,
     objective text,
-    actual_level text
+    actual_level text,
+    language_id integer references languages(id)
   );`);
   const pg = mem.adapters.createPg();
   (require as any).cache[require.resolve('pg')] = { exports: pg };
