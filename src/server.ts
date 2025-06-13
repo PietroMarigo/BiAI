@@ -8,7 +8,11 @@ import bcrypt from 'bcryptjs';
 import { createUser } from './register';
 import { getUserHash } from './login';
 import { saveUserPrefs, hasUserPrefs } from './firstLogin';
-import { startEvaluation, finishEvaluation } from './evaluate';
+import {
+  startEvaluation,
+  finishEvaluation,
+  getQuestionsForUser
+} from './evaluate';
 
 function parseCookies(req: express.Request): Record<string, string> {
   const header = req.headers.cookie || '';
@@ -138,6 +142,20 @@ export function startServer(port: number) {
     res.sendFile(path.join(__dirname, '..', 'public', 'evaluate.html'));
   });
 
+  app.get('/evaluate/loading', async (req, res) => {
+    const cookies = parseCookies(req);
+    const username = cookies['user'];
+    if (!username) {
+      res.redirect('/login');
+      return;
+    }
+    if (!(await hasUserPrefs(username))) {
+      res.redirect('/first-login');
+      return;
+    }
+    res.sendFile(path.join(__dirname, '..', 'public', 'loading.html'));
+  });
+
   app.get('/evaluate/start', async (req, res) => {
     const cookies = parseCookies(req);
     const username = cookies['user'];
@@ -145,11 +163,24 @@ export function startServer(port: number) {
       res.status(401).send('Not logged in');
       return;
     }
-    const questions = await startEvaluation(username);
-    if (questions) {
-      res.json(questions);
+    startEvaluation(username).catch(err => {
+      console.error('startEvaluation failed:', err);
+    });
+    res.status(202).send('started');
+  });
+
+  app.get('/evaluate/questions', (req, res) => {
+    const cookies = parseCookies(req);
+    const username = cookies['user'];
+    if (!username) {
+      res.status(401).send('Not logged in');
+      return;
+    }
+    const q = getQuestionsForUser(username);
+    if (q) {
+      res.json(q);
     } else {
-      res.status(500).send('Unable to start evaluation');
+      res.status(204).end();
     }
   });
 
@@ -165,9 +196,9 @@ export function startServer(port: number) {
       res.status(400).send('Invalid data');
       return;
     }
-    const ok = await finishEvaluation(username, answers);
-    if (ok) {
-      res.status(200).send('Saved');
+    const result = await finishEvaluation(username, answers);
+    if (result) {
+      res.json(result);
     } else {
       res.status(500).send('Error');
     }

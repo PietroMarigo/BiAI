@@ -22,7 +22,14 @@
     let index = 0;
 
     async function loadQuestions() {
-      const res = await fetch('/evaluate/start');
+      const stored = sessionStorage.getItem('quizQuestions');
+      if (stored) {
+        questions = JSON.parse(stored);
+        sessionStorage.removeItem('quizQuestions');
+        renderQuestion();
+        return;
+      }
+      const res = await fetch('/evaluate/questions');
       if (res.ok) {
         questions = await res.json();
         renderQuestion();
@@ -97,12 +104,12 @@
         const selects = questionEl.querySelectorAll('select');
         const parts = [];
         selects.forEach((s, i) => {
-          parts.push(q.items[i].french + ':' + (s as HTMLSelectElement).value);
+          parts.push(q.items[i].french + ':' + s.value);
         });
         ans = parts.join(',');
       } else {
         const input = questionEl.querySelector('input');
-        if (input) ans = (input as HTMLInputElement).value;
+        if (input) ans = input.value;
       }
       answers.push(ans);
       index++;
@@ -117,7 +124,19 @@
         body: JSON.stringify({ answers })
       });
       if (res.ok) {
-        window.location.href = '/homepage';
+        const data = await res.json();
+        questionEl.innerHTML =
+          '<p class="mb-2">Your level: ' +
+          data.level +
+          '</p><p>' +
+          (data.suggestion || '') +
+          '</p>';
+        nextBtn.textContent = 'Home';
+        nextBtn.removeEventListener('click', collectAnswer);
+        nextBtn.addEventListener('click', () => {
+          window.location.href = '/homepage';
+        });
+        nextBtn.disabled = false;
       } else {
         questionEl.textContent = 'Error submitting answers';
       }
