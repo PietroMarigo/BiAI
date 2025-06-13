@@ -67,20 +67,38 @@ export function cleanN8nOutput(raw: RawN8nOutput): Quiz {
     throw new Error('Invalid input: expected a non-empty array');
   }
 
-  const first = raw[0].output;
-  const fencedMatch = first.match(/```json\s*([\s\S]*?)\s*```/i);
-  const jsonText = fencedMatch ? fencedMatch[1] : first;
-
-  try {
-    const parsed = JSON.parse(jsonText) as Quiz;
-    if (!parsed.questions || !Array.isArray(parsed.questions)) {
-      throw new Error('Parsed object does not contain a questions array');
-    }
-    return parsed;
-  } catch (err) {
-    console.error('Failed to parse n8n output:', err, '\nRaw text:', jsonText);
-    throw new Error('Could not clean/parse n8n output JSON');
+  let jsonText = raw[0].output;
+  const fencedMatch = jsonText.match(/```json\s*([\s\S]*?)\s*```/i);
+  if (fencedMatch) {
+    jsonText = fencedMatch[1];
   }
+  jsonText = jsonText.trim();
+
+  const attempts = [
+    jsonText,
+    jsonText.replace(/^['"]|['"]$/g, ''),
+    (() => {
+      try {
+        return JSON.parse(jsonText);
+      } catch {
+        return '';
+      }
+    })()
+  ];
+
+  for (const text of attempts) {
+    if (!text) continue;
+    try {
+      const parsed = typeof text === 'string' ? JSON.parse(text) : text;
+      if (parsed && Array.isArray((parsed as any).questions)) {
+        return parsed as Quiz;
+      }
+    } catch {
+      // try next
+    }
+  }
+  console.error('Failed to parse n8n output:\n', jsonText);
+  throw new Error('Could not clean/parse n8n output JSON');
 }
 
 const quizzes: Map<string, Quiz> = new Map();
