@@ -165,9 +165,9 @@ export function startServer(port: number) {
       res.status(400).send('Invalid data');
       return;
     }
-    const ok = await finishEvaluation(username, answers);
-    if (ok) {
-      res.status(200).send('Saved');
+    const result = await finishEvaluation(username, answers);
+    if (result) {
+      res.json(result);
     } else {
       res.status(500).send('Error');
     }

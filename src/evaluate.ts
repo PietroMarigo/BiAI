@@ -169,26 +169,39 @@ export async function startEvaluation(username: string): Promise<Question[] | nu
   }
 }
 
-export async function finishEvaluation(username: string, answers: string[]): Promise<boolean> {
+export interface EvaluationResult {
+  level: string;
+  suggestion?: string;
+}
+
+export async function finishEvaluation(
+  username: string,
+  answers: string[]
+): Promise<EvaluationResult | null> {
   const quiz = quizzes.get(username);
   quizzes.delete(username);
-  if (!quiz || !process.env.N8N_GRADE_URL) return false;
+  if (!quiz || !process.env.N8N_GRADE_URL) return null;
   try {
     const res = await fetch(process.env.N8N_GRADE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, quiz, answers })
     });
-    if (!res.ok) return false;
+    if (!res.ok) return null;
     const data = await res.json();
     const level = data.level;
-    if (!level) return false;
+    const suggestion = data.suggestion || data.recommendation;
+    if (!level) return null;
     const p = await ensurePool();
-    if (!p) return false;
-    await p.query('UPDATE user_languages SET actual_level = $1 WHERE username = $2', [level, username]);
-    return true;
+    if (p) {
+      await p.query(
+        'UPDATE user_languages SET actual_level = $1 WHERE username = $2',
+        [level, username]
+      );
+    }
+    return { level, suggestion };
   } catch (err) {
     console.error('finishEvaluation error:', err.message);
-    return false;
+    return null;
   }
 }

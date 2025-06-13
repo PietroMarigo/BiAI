@@ -117,7 +117,19 @@
         body: JSON.stringify({ answers })
       });
       if (res.ok) {
-        window.location.href = '/homepage';
+        const data = await res.json();
+        questionEl.innerHTML =
+          '<p class="mb-2">Your level: ' +
+          data.level +
+          '</p><p>' +
+          (data.suggestion || '') +
+          '</p>';
+        nextBtn.textContent = 'Home';
+        nextBtn.removeEventListener('click', collectAnswer);
+        nextBtn.addEventListener('click', () => {
+          window.location.href = '/homepage';
+        });
+        nextBtn.disabled = false;
       } else {
         questionEl.textContent = 'Error submitting answers';
       }
