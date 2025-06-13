@@ -67,20 +67,38 @@ export function cleanN8nOutput(raw: RawN8nOutput): Quiz {
     throw new Error('Invalid input: expected a non-empty array');
   }
 
-  const first = raw[0].output;
-  const fencedMatch = first.match(/```json\s*([\s\S]*?)\s*```/i);
-  const jsonText = fencedMatch ? fencedMatch[1] : first;
-
-  try {
-    const parsed = JSON.parse(jsonText) as Quiz;
-    if (!parsed.questions || !Array.isArray(parsed.questions)) {
-      throw new Error('Parsed object does not contain a questions array');
-    }
-    return parsed;
-  } catch (err) {
-    console.error('Failed to parse n8n output:', err, '\nRaw text:', jsonText);
-    throw new Error('Could not clean/parse n8n output JSON');
+  let jsonText = raw[0].output;
+  const fencedMatch = jsonText.match(/```json\s*([\s\S]*?)\s*```/i);
+  if (fencedMatch) {
+    jsonText = fencedMatch[1];
   }
+  jsonText = jsonText.trim();
+
+  const attempts = [
+    jsonText,
+    jsonText.replace(/^['"]|['"]$/g, ''),
+    (() => {
+      try {
+        return JSON.parse(jsonText);
+      } catch {
+        return '';
+      }
+    })()
+  ];
+
+  for (const text of attempts) {
+    if (!text) continue;
+    try {
+      const parsed = typeof text === 'string' ? JSON.parse(text) : text;
+      if (parsed && Array.isArray((parsed as any).questions)) {
+        return parsed as Quiz;
+      }
+    } catch {
+      // try next
+    }
+  }
+  console.error('Failed to parse n8n output:\n', jsonText);
+  throw new Error('Could not clean/parse n8n output JSON');
 }
 
 const quizzes: Map<string, Quiz> = new Map();
@@ -98,7 +116,13 @@ export async function getPrefs(username: string) {
   const p = await ensurePool();
   if (!p) return null;
   try {
-    const res = await p.query('SELECT language, objective FROM user_languages WHERE username = $1', [username]);
+    const res = await p.query(
+      `SELECT l.code AS language, ul.objective
+       FROM user_languages ul
+       JOIN languages l ON ul.language_id = l.id
+       WHERE ul.username = $1`,
+      [username]
+    );
     if (res.rowCount > 0) {
       return res.rows[0];
     }
@@ -120,7 +144,12 @@ export async function startEvaluation(username: string): Promise<Question[] | nu
       objective: prefs.objective
     };
     console.log('Posting evaluation start payload:', payload);
-    const res = await fetch(process.env.N8N_WEBHOOK_URL, {
+
+    const url = process.env.N8N_WEBHOOK_URL.includes('?')
+      ? `${process.env.N8N_WEBHOOK_URL}&wait=1`
+      : `${process.env.N8N_WEBHOOK_URL}?wait=1`;
+
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -140,26 +169,39 @@ export async function startEvaluation(username: string): Promise<Question[] | nu
   }
 }
 
-export async function finishEvaluation(username: string, answers: string[]): Promise<boolean> {
+export interface EvaluationResult {
+  level: string;
+  suggestion?: string;
+}
+
+export async function finishEvaluation(
+  username: string,
+  answers: string[]
+): Promise<EvaluationResult | null> {
   const quiz = quizzes.get(username);
   quizzes.delete(username);
-  if (!quiz || !process.env.N8N_GRADE_URL) return false;
+  if (!quiz || !process.env.N8N_GRADE_URL) return null;
   try {
     const res = await fetch(process.env.N8N_GRADE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, quiz, answers })
     });
-    if (!res.ok) return false;
+    if (!res.ok) return null;
     const data = await res.json();
     const level = data.level;
-    if (!level) return false;
+    const suggestion = data.suggestion || data.recommendation;
+    if (!level) return null;
     const p = await ensurePool();
-    if (!p) return false;
-    await p.query('UPDATE user_languages SET actual_level = $1 WHERE username = $2', [level, username]);
-    return true;
+    if (p) {
+      await p.query(
+        'UPDATE user_languages SET actual_level = $1 WHERE username = $2',
+        [level, username]
+      );
+    }
+    return { level, suggestion };
   } catch (err) {
     console.error('finishEvaluation error:', err.message);
-    return false;
+    return null;
   }
 }
