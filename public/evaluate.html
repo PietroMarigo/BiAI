@@ -22,7 +22,18 @@
     let index = 0;
 
     async function loadQuestions() {
+<<<<<<< usv2x2-codex/send-user-data-to-webhook-on-start
+      const stored = sessionStorage.getItem('quizQuestions');
+      if (stored) {
+        questions = JSON.parse(stored);
+        sessionStorage.removeItem('quizQuestions');
+        renderQuestion();
+        return;
+      }
+      const res = await fetch('/evaluate/start');
+=======
       const res = await fetch('/evaluate/questions');
+>>>>>>> main
       if (res.ok) {
         questions = await res.json();
         renderQuestion();

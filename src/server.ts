@@ -138,6 +138,20 @@ export function startServer(port: number) {
     res.sendFile(path.join(__dirname, '..', 'public', 'evaluate.html'));
   });
 
+  app.get('/evaluate/loading', async (req, res) => {
+    const cookies = parseCookies(req);
+    const username = cookies['user'];
+    if (!username) {
+      res.redirect('/login');
+      return;
+    }
+    if (!(await hasUserPrefs(username))) {
+      res.redirect('/first-login');
+      return;
+    }
+    res.sendFile(path.join(__dirname, '..', 'public', 'loading.html'));
+  });
+
   app.get('/evaluate/start', async (req, res) => {
     const cookies = parseCookies(req);
     const username = cookies['user'];
