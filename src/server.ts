@@ -184,6 +184,21 @@ export function startServer(port: number) {
     }
   });
 
+  app.get('/evaluate/questions', (req, res) => {
+    const cookies = parseCookies(req);
+    const username = cookies['user'];
+    if (!username) {
+      res.status(401).send('Not logged in');
+      return;
+    }
+    const questions = getStoredQuestions(username);
+    if (questions) {
+      res.json(questions);
+    } else {
+      res.status(404).send('No questions');
+    }
+  });
+
   app.post('/evaluate/finish', async (req, res) => {
     const cookies = parseCookies(req);
     const username = cookies['user'];
