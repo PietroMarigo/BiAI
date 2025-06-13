@@ -73,8 +73,12 @@ n8n can interact with this project over HTTP APIs. Add your n8n credentials or A
 3. Create a second workflow with another **HTTP Trigger** node on `/webhook/evaluate/finish`. This receives the original quiz together with the user's answers and returns the detected level. Optionally update the database with a **PostgreSQL** node.
 4. Note the external URL of the first trigger and set `N8N_WEBHOOK_URL=<url>` in the `credentials` file. Set `N8N_GRADE_URL=<url>` to the second workflow so the server knows where to send answers for grading.
 5. To have the backend wait for the workflow to complete, use the webhook URL with `?wait=1` or omit the parameter and let the server append it automatically. This keeps the connection open until n8n sends the generated questions.
+<<<<<<< usv2x2-codex/send-user-data-to-webhook-on-start
 6. The home page's **Start** button now directs users to `/evaluate/loading`, a small page that shows a spinner while the server requests the quiz questions and then redirects to `/evaluate` once they are available.
 7. The grading workflow should respond with a JSON object containing a `level` field and an optional `suggestion`. The evaluation page displays this information after submitting the answers.
+=======
+6. The grading workflow should respond with a JSON object containing a `level` field and an optional `suggestion`. The evaluation page displays this information after submitting the answers.
+>>>>>>> main
 
 ## credentials file
 
