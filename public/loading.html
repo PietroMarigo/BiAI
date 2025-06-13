@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generating Quiz - BiAI</title>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-white" style='font-family: Lexend, "Noto Sans", sans-serif;'>
+  <div class="flex flex-col items-center gap-4">
+    <div class="animate-spin rounded-full h-12 w-12 border-4 border-[#00a7a7] border-t-transparent"></div>
+    <p id="msg" class="text-[#111818] font-medium">Preparing your evaluation...</p>
+  </div>
+  <script>
+    async function startEval() {
+      await fetch('/evaluate/start');
+      const timer = setInterval(async () => {
+        const res = await fetch('/evaluate/questions');
+        if (res.ok) {
+          const questions = await res.json();
+          clearInterval(timer);
+          sessionStorage.setItem('quizQuestions', JSON.stringify(questions));
+          window.location.href = '/evaluate';
+        }
+      }, 1000);
+    }
+    startEval();
+  </script>
+</body>
+</html>

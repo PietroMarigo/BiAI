@@ -62,28 +62,64 @@ type RawN8nOutput = Array<{ output: string }>;
  * Cleans the output coming from the n8n node, stripping markdown fences
  * and parsing the inner JSON.
  */
-export function cleanN8nOutput(raw: RawN8nOutput): Quiz {
+function parseN8nJson(raw: RawN8nOutput): any {
   if (!Array.isArray(raw) || raw.length === 0) {
     throw new Error('Invalid input: expected a non-empty array');
   }
 
-  const first = raw[0].output;
-  const fencedMatch = first.match(/```json\s*([\s\S]*?)\s*```/i);
-  const jsonText = fencedMatch ? fencedMatch[1] : first;
+  let jsonText = raw[0].output;
+  const fencedMatch = jsonText.match(/```json\s*([\s\S]*?)\s*```/i);
+  if (fencedMatch) {
+    jsonText = fencedMatch[1];
+  }
+  jsonText = jsonText.trim();
 
-  try {
-    const parsed = JSON.parse(jsonText) as Quiz;
-    if (!parsed.questions || !Array.isArray(parsed.questions)) {
-      throw new Error('Parsed object does not contain a questions array');
+  const attempts = [
+    jsonText,
+    jsonText.replace(/^['"]|['"]$/g, ''),
+    (() => {
+      try {
+        return JSON.parse(jsonText);
+      } catch {
+        return '';
+      }
+    })()
+  ];
+
+  for (const text of attempts) {
+    if (!text) continue;
+    try {
+      const parsed = typeof text === 'string' ? JSON.parse(text) : text;
+      if (parsed && typeof parsed === 'object') {
+        return parsed;
+      }
+    } catch {
+      // try next
     }
-    return parsed;
-  } catch (err) {
-    console.error('Failed to parse n8n output:', err, '\nRaw text:', jsonText);
+  }
+  console.error('Failed to parse n8n JSON:\n', jsonText);
+  throw new Error('Could not parse n8n JSON');
+}
+
+export function cleanN8nOutput(raw: RawN8nOutput): Quiz {
+  const parsed = parseN8nJson(raw);
+  if (!Array.isArray((parsed as any).questions)) {
+    console.error('No questions field in n8n output');
     throw new Error('Could not clean/parse n8n output JSON');
   }
+  return parsed as Quiz;
 }
 
 const quizzes: Map<string, Quiz> = new Map();
+
+export function getQuestionsForUser(username: string): Question[] | null {
+  const quiz = quizzes.get(username);
+  if (!quiz) return null;
+  return quiz.questions.map(q => {
+    const { answer, answer_keywords, ...rest } = q as any;
+    return rest;
+  });
+}
 
 let pool: Pool | null = null;
 
@@ -98,7 +134,13 @@ export async function getPrefs(username: string) {
   const p = await ensurePool();
   if (!p) return null;
   try {
-    const res = await p.query('SELECT language, objective FROM user_languages WHERE username = $1', [username]);
+    const res = await p.query(
+      `SELECT l.code AS language, ul.objective
+       FROM user_languages ul
+       JOIN languages l ON ul.language_id = l.id
+       WHERE ul.username = $1`,
+      [username]
+    );
     if (res.rowCount > 0) {
       return res.rows[0];
     }
@@ -120,7 +162,12 @@ export async function startEvaluation(username: string): Promise<Question[] | nu
       objective: prefs.objective
     };
     console.log('Posting evaluation start payload:', payload);
-    const res = await fetch(process.env.N8N_WEBHOOK_URL, {
+
+    const url = process.env.N8N_WEBHOOK_URL.includes('?')
+      ? `${process.env.N8N_WEBHOOK_URL}&wait=1`
+      : `${process.env.N8N_WEBHOOK_URL}?wait=1`;
+
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -140,26 +187,40 @@ export async function startEvaluation(username: string): Promise<Question[] | nu
   }
 }
 
-export async function finishEvaluation(username: string, answers: string[]): Promise<boolean> {
+export interface EvaluationResult {
+  level: string;
+  suggestion?: string;
+}
+
+export async function finishEvaluation(
+  username: string,
+  answers: string[]
+): Promise<EvaluationResult | null> {
   const quiz = quizzes.get(username);
   quizzes.delete(username);
-  if (!quiz || !process.env.N8N_GRADE_URL) return false;
+  if (!quiz || !process.env.N8N_GRADE_URL) return null;
   try {
     const res = await fetch(process.env.N8N_GRADE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, quiz, answers })
     });
-    if (!res.ok) return false;
-    const data = await res.json();
-    const level = data.level;
-    if (!level) return false;
+    if (!res.ok) return null;
+    const raw = await res.json();
+    const data = parseN8nJson(raw);
+    const level = (data as any).level;
+    const suggestion = (data as any).suggestion || (data as any).recommendation;
+    if (!level) return null;
     const p = await ensurePool();
-    if (!p) return false;
-    await p.query('UPDATE user_languages SET actual_level = $1 WHERE username = $2', [level, username]);
-    return true;
+    if (p) {
+      await p.query(
+        'UPDATE user_languages SET actual_level = $1 WHERE username = $2',
+        [level, username]
+      );
+    }
+    return { level, suggestion };
   } catch (err) {
     console.error('finishEvaluation error:', err.message);
-    return false;
+    return null;
   }
 }
