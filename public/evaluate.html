@@ -22,7 +22,7 @@
     let index = 0;
 
     async function loadQuestions() {
-      const res = await fetch('/evaluate/start');
+      const res = await fetch('/evaluate/questions');
       if (res.ok) {
         questions = await res.json();
         renderQuestion();

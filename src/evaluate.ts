@@ -85,6 +85,15 @@ export function cleanN8nOutput(raw: RawN8nOutput): Quiz {
 
 const quizzes: Map<string, Quiz> = new Map();
 
+export function getStoredQuestions(username: string): Question[] | null {
+  const quiz = quizzes.get(username);
+  if (!quiz) return null;
+  return quiz.questions.map(q => {
+    const { answer, answer_keywords, ...rest } = q as any;
+    return rest;
+  });
+}
+
 let pool: Pool | null = null;
 
 async function ensurePool() {
